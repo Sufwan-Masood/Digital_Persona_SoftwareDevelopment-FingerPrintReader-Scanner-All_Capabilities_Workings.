@@ -1,0 +1,81 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "DigitalPersona_app/1.0.0": {
+        "dependencies": {
+          "DPCtlUruNet": "1.0.0.1",
+          "DPCtlXUru": "1.0.0.1",
+          "DPUruNet": "1.0.0.1",
+          "DPXUru": "1.0.0.1"
+        },
+        "runtime": {
+          "DigitalPersona_app.dll": {}
+        }
+      },
+      "DPCtlUruNet/1.0.0.1": {
+        "runtime": {
+          "DPCtlUruNet.dll": {
+            "assemblyVersion": "1.0.0.1",
+            "fileVersion": "1.0.0.597"
+          }
+        }
+      },
+      "DPCtlXUru/1.0.0.1": {
+        "runtime": {
+          "DPCtlXUru.dll": {
+            "assemblyVersion": "1.0.0.1",
+            "fileVersion": "1.0.0.597"
+          }
+        }
+      },
+      "DPUruNet/1.0.0.1": {
+        "runtime": {
+          "DPUruNet.dll": {
+            "assemblyVersion": "1.0.0.1",
+            "fileVersion": "1.0.0.597"
+          }
+        }
+      },
+      "DPXUru/1.0.0.1": {
+        "runtime": {
+          "DPXUru.dll": {
+            "assemblyVersion": "1.0.0.1",
+            "fileVersion": "1.0.0.597"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "DigitalPersona_app/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DPCtlUruNet/1.0.0.1": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DPCtlXUru/1.0.0.1": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DPUruNet/1.0.0.1": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DPXUru/1.0.0.1": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
