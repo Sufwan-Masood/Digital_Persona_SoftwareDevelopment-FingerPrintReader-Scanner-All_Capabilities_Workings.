@@ -19,15 +19,11 @@ namespace DigitalPersona_app
         public delegate void updateCapabilites(Reader reader);
         public delegate void DisplayCapture(Bitmap bitmap);
         public delegate void openEnterance();
-        public string test = " dds";
-    
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
 
         public Reader reader;
         public DP_Enterance()
         {
-
-
             AllocConsole();
 
             ReaderCollection readerCollection = ReaderCollection.GetReaders();
@@ -36,25 +32,13 @@ namespace DigitalPersona_app
                 InitializeComponent();
                 foreach (var _readers in readerCollection)
                 {
-                    comboBox1.Items.Add(_readers.Description.Name);
-                }
-
-                if (comboBox1.SelectedItem != null)
-                {
-                    checkLabel.Text = comboBox1.SelectedItem.ToString();
+                    comboBox1.Items.Add(_readers.Description.SerialNumber);
                 }
             }
             catch (Exception e)
             {
                 MessageBox.Show("Error " + e);
             }
-
-
-            //
-
-
-
-            //
         }
 
 
@@ -86,6 +70,7 @@ namespace DigitalPersona_app
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             checkLabel.Text = comboBox1.SelectedItem.ToString();
+            checkLabel.Text = $"Selected Reader: " + comboBox1.SelectedItem.ToString();
 
         }
         private void comboBox1_SelectionChangeCommitted(object sender, EventArgs e)
@@ -105,7 +90,7 @@ namespace DigitalPersona_app
             this.Hide();
             if (capabilitesForm == null || capabilitesForm.IsDisposed)
             {
-                capabilitesForm = new Capabilites_form();
+                capabilitesForm = new Capabilites_form(this);
             }
             updateCapabilites updateCapabilites = capabilitesForm.updatecap;
             updateCapabilites(reader);
@@ -126,11 +111,11 @@ namespace DigitalPersona_app
             reader.On_Captured += new Reader.CaptureCallback(OnCaptured);
             // event is subscribed to event handler( callback delegate )=>as onCaptured has same sig as of the delegate CaptureCallback
             reader.CaptureAsync(Constants.Formats.Fid.ANSI, Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT, reader.Capabilities.Resolutions[0]);
-           
+
             //Hidelabel hidelabel = captureForm.hidelabel;
             //hidelabel();                                                              here
-            
-            
+
+
         }
 
 
@@ -171,8 +156,8 @@ namespace DigitalPersona_app
             {
                 foreach (Fid.Fiv view in captureResult.Data.Views)
                 {
-                    
-                   
+
+
                     // Use the provided CreateBitmap method to create the bitmap
                     Bitmap bitmap = CreateBitmap(view.RawImage, view.Width, view.Height);
 
@@ -248,8 +233,5 @@ namespace DigitalPersona_app
             startCapture();
             captureForm.Show();
         }
-
-
-
     }
 }

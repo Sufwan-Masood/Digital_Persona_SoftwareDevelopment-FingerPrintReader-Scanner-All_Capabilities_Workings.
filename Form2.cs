@@ -14,10 +14,15 @@ namespace DigitalPersona_app
 
     public partial class Capabilites_form : Form
     {
-        private DP_Enterance? dP_Enterance;
+        private DP_Enterance? _parentForm;
 
         public Capabilites_form()
         {
+            InitializeComponent();
+        }
+        public Capabilites_form(DP_Enterance parentForm)
+        {
+            _parentForm = parentForm;
             InitializeComponent();
         }
 
@@ -60,13 +65,8 @@ namespace DigitalPersona_app
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
-            if (dP_Enterance == null || dP_Enterance.IsDisposed)
-            {
-                dP_Enterance = new DP_Enterance();
-            }
-
-            dP_Enterance.Show();
-            
+            _parentForm.Show(); 
+            _parentForm.reader.Dispose();
         }
 
     }
