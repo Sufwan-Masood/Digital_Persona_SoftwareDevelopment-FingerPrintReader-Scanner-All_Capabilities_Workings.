@@ -8,6 +8,8 @@ using DPXUru;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
+using System.Configuration;
+using System.Data.SqlClient;
 
 namespace DigitalPersona_app
 {
@@ -16,6 +18,8 @@ namespace DigitalPersona_app
     {
         private capture_Form captureForm;
         private Capabilites_form capabilitesForm;
+        private List<Fmd> fmdList;
+        private const int sampleCount = 1;
         public delegate void updateCapabilites(Reader reader);
         public delegate void DisplayCapture(Bitmap bitmap);
         public delegate void openEnterance();
@@ -25,7 +29,7 @@ namespace DigitalPersona_app
         public DP_Enterance()
         {
             AllocConsole();
-
+            fmdList = new List<Fmd>();
             ReaderCollection readerCollection = ReaderCollection.GetReaders();
             try
             {
@@ -140,6 +144,7 @@ namespace DigitalPersona_app
         //}
         private void OnCaptured(CaptureResult captureResult)
         {
+
             if (captureForm == null || captureForm.IsDisposed)
             {
                 captureForm = new capture_Form(this);
@@ -154,10 +159,11 @@ namespace DigitalPersona_app
             // Process the captured fingerprint
             if (captureResult.Data != null && captureResult.Data.Views.Count > 0)
             {
+              
+               Console.WriteLine() ;
                 foreach (Fid.Fiv view in captureResult.Data.Views)
                 {
-
-
+                   
                     // Use the provided CreateBitmap method to create the bitmap
                     Bitmap bitmap = CreateBitmap(view.RawImage, view.Width, view.Height);
 
@@ -174,11 +180,84 @@ namespace DigitalPersona_app
                     //pictureBox1.Image = bitmap; // checking of Bitmap on the same form
                     DisplayCapture displayCapture = captureForm._displayCapture;
                     displayCapture(bitmap);
+
+                    // Convert the fingerprint to FMD
+                    Fmd fmd = FeatureExtraction.CreateFmdFromFid(captureResult.Data, Constants.Formats.Fmd.ANSI).Data;
+                    // Add the FMD to the list
+                    fmdList.Add(fmd);
+
+                    if (fmdList.Count == sampleCount) {
+                        StoreFmdInDatabase(fmdList[0].Bytes);
+                        fmdList.Clear();
+                    }
+                    
                 }
             }
             //reader.Dispose();
         }
 
+        //private void StoreFmdInDatabase(byte[] fmdBytes)
+        //{
+        //    string cs = "Data Source=DESKTOP-1907SQ5;Initial Catalog=DigitalPersona;Integrated Security=True";
+        //    SqlConnection con = new SqlConnection(cs);
+        //    string query = "INSERT INTO FingerprintData (Fmd) VALUES (@Fmd)";
+        //    string query2 = "Select Id from FingerprintData where Fmd = @Fmd";
+        //    SqlCommand cmd = new SqlCommand(query, con);
+        //    SqlCommand cmd2 = new SqlCommand(query2, con);
+        //    cmd.Parameters.AddWithValue("@Fmd", fmdBytes);
+        //    cmd2.Parameters.AddWithValue("@Fmd", fmdBytes);
+        //    con.Open();
+        //    SqlDataReader dr = cmd2.ExecuteReader();
+        //    int nq = cmd.ExecuteNonQuery();
+        //    if (nq > 0)
+        //    {
+        //        Console.WriteLine("Data Entered in SqlServer Base");
+        //        Console.WriteLine($"Rows Affected: {nq}");
+        //        Console.WriteLine($"Data: {fmdBytes.LongLength}");
+        //        Console.WriteLine("-----------------------------------------------------------------");
+        //    }
+        //    if (dr.HasRows)
+        //    {
+        //        Console.WriteLine("\t\t\tFinger Already Enrolled");
+        //    }
+        //    con.Close();
+
+        //}
+
+        private void StoreFmdInDatabase(byte[] fmdBytes)
+        {
+            string cs = "Data Source=DESKTOP-1907SQ5;Initial Catalog=DigitalPersona;Integrated Security=True";
+            SqlConnection con = new SqlConnection(cs);
+            string query = "INSERT INTO FingerprintData (Fmd) VALUES (@Fmd)";
+            string query2 = "Select Id from FingerprintData where Fmd = @Fmd";
+            SqlCommand cmd = new SqlCommand(query, con);
+            SqlCommand cmd2 = new SqlCommand(query2, con);
+            cmd.Parameters.AddWithValue("@Fmd", fmdBytes);
+            cmd2.Parameters.AddWithValue("@Fmd", fmdBytes);
+            con.Open();
+            SqlDataReader dr = cmd2.ExecuteReader();
+            if (dr.HasRows)
+            {
+                Console.WriteLine("\t\t\tFinger Already Enrolled");
+            }
+            else
+            {
+                Console.WriteLine("\t\t\tUnique");
+
+            }
+            con.Close();
+
+            con.Open();
+            int nq = cmd.ExecuteNonQuery();
+            if (nq > 0)
+            {
+                Console.WriteLine("Data Entered in SqlServer Base");
+                Console.WriteLine($"Rows Affected: {nq}");
+                Console.WriteLine($"Data: {fmdBytes.LongLength}");
+                Console.WriteLine("-----------------------------------------------------------------");
+            }
+            con.Close();
+        }
 
 
 
@@ -195,7 +274,7 @@ namespace DigitalPersona_app
                 rgbBytes[(i * 3) + 2] = bytes[i];
             }
 
-            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format16bppArgb1555);
+            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format1bppIndexed);
 
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
 
