@@ -14,7 +14,7 @@ namespace DigitalPersona_app
 
     public partial class Capabilites_form : Form
     {
-    private DP_Enterance dP_Enterance;
+        private DP_Enterance? dP_Enterance;
 
         public Capabilites_form()
         {
@@ -71,5 +71,6 @@ namespace DigitalPersona_app
             dP_Enterance.Show();
             
         }
+
     }
 }

@@ -30,6 +30,7 @@
         {
             pictureBox1 = new PictureBox();
             button1 = new Button();
+            label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -38,13 +39,14 @@
             pictureBox1.Location = new Point(12, 12);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(389, 409);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
             // button1
             // 
             button1.BackColor = SystemColors.ActiveCaption;
-            button1.Location = new Point(513, 158);
+            button1.Location = new Point(521, 299);
             button1.Name = "button1";
             button1.Size = new Size(133, 62);
             button1.TabIndex = 1;
@@ -52,12 +54,23 @@
             button1.UseVisualStyleBackColor = false;
             button1.Click += button1_Click;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Microsoft YaHei Light", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            label1.Location = new Point(425, 178);
+            label1.Name = "label1";
+            label1.Size = new Size(330, 31);
+            label1.TabIndex = 2;
+            label1.Text = "Place Your Finger On Reader";
+            // 
             // capture_Form
             // 
             AutoScaleDimensions = new SizeF(11F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.GradientActiveCaption;
             ClientSize = new Size(800, 450);
+            Controls.Add(label1);
             Controls.Add(button1);
             Controls.Add(pictureBox1);
             Name = "capture_Form";
@@ -66,10 +79,12 @@
             Load += Capture_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
         private Button button1;
         public PictureBox pictureBox1;
+        public Label label1;
     }
 }

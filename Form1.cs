@@ -11,11 +11,14 @@ using System.Drawing.Imaging;
 
 namespace DigitalPersona_app
 {
+
     public partial class DP_Enterance : Form
     {
         private capture_Form captureForm;
+        private Capabilites_form capabilitesForm;
         public delegate void updateCapabilites(Reader reader);
         public delegate void DisplayCapture(Bitmap bitmap);
+        public delegate void Hidelabel();
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
 
         public Reader reader;
@@ -98,12 +101,16 @@ namespace DigitalPersona_app
         {
 
             this.Hide();
-            Capabilites_form capabilites_Form = new Capabilites_form();
-            updateCapabilites updateCapabilites = capabilites_Form.updatecap;
+            if (capabilitesForm == null || capabilitesForm.IsDisposed)
+            {
+                capabilitesForm = new Capabilites_form();
+            }
+            updateCapabilites updateCapabilites = capabilitesForm.updatecap;
             updateCapabilites(reader);
-            capabilites_Form.Show();
+            capabilitesForm.Show();
 
         }
+
         private void startCapture()
         {
             if (reader == null)
@@ -117,6 +124,11 @@ namespace DigitalPersona_app
             reader.On_Captured += new Reader.CaptureCallback(OnCaptured);
             // event is subscribed to event handler( callback delegate )=>as onCaptured has same sig as of the delegate CaptureCallback
             reader.CaptureAsync(Constants.Formats.Fid.ANSI, Constants.CaptureProcessing.DP_IMG_PROC_DEFAULT, reader.Capabilities.Resolutions[0]);
+           
+            //Hidelabel hidelabel = captureForm.hidelabel;
+            //hidelabel();                                                              here
+            
+            
         }
 
 
@@ -175,6 +187,8 @@ namespace DigitalPersona_app
                     //pictureBox1.Image = bitmap; // checking of Bitmap on the same form
                     DisplayCapture displayCapture = captureForm._displayCapture;
                     displayCapture(bitmap);
+
+
                 }
             }
         }
@@ -195,7 +209,7 @@ namespace DigitalPersona_app
                 rgbBytes[(i * 3) + 2] = bytes[i];
             }
 
-            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format16bppArgb1555);
 
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
 
@@ -220,6 +234,7 @@ namespace DigitalPersona_app
         private void button2_Click(object sender, EventArgs e)
         {
             //capture_Form form = new capture_Form();
+            this.Hide();
             if (captureForm == null || captureForm.IsDisposed)
             {
                 captureForm = new capture_Form();

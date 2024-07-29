@@ -26,3 +26,4 @@ C:\Users\GOLDEN\source\repos\DigitalPersona_app\bin\Debug\net6.0-windows\DPXUru.
 C:\Users\GOLDEN\source\repos\DigitalPersona_app\obj\Debug\net6.0-windows\DigitalPersona_app.DP_Enterance.resources
 C:\Users\GOLDEN\source\repos\DigitalPersona_app\obj\Debug\net6.0-windows\DigitalPersona_app.Capabilites_form.resources
 C:\Users\GOLDEN\source\repos\DigitalPersona_app\obj\Debug\net6.0-windows\DigitalPersona_app.Capture_form.resources
+C:\Users\GOLDEN\source\repos\DigitalPersona_app\obj\Debug\net6.0-windows\DigitalPersona_app.Properties.Resources.resources
