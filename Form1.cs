@@ -18,7 +18,9 @@ namespace DigitalPersona_app
         private Capabilites_form capabilitesForm;
         public delegate void updateCapabilites(Reader reader);
         public delegate void DisplayCapture(Bitmap bitmap);
-        public delegate void Hidelabel();
+        public delegate void openEnterance();
+        public string test = " dds";
+    
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
 
         public Reader reader;
@@ -155,7 +157,7 @@ namespace DigitalPersona_app
         {
             if (captureForm == null || captureForm.IsDisposed)
             {
-                captureForm = new capture_Form();
+                captureForm = new capture_Form(this);
             }
 
             if (captureResult.ResultCode != Constants.ResultCode.DP_SUCCESS)
@@ -187,10 +189,9 @@ namespace DigitalPersona_app
                     //pictureBox1.Image = bitmap; // checking of Bitmap on the same form
                     DisplayCapture displayCapture = captureForm._displayCapture;
                     displayCapture(bitmap);
-
-
                 }
             }
+            //reader.Dispose();
         }
 
 
@@ -223,24 +224,32 @@ namespace DigitalPersona_app
 
             return bmp;
         }
-        //private Bitmap CreateBitmap(byte[] imageData)
-        //{
-        //    using (MemoryStream ms = new MemoryStream(imageData))
-        //    {
-        //        return new Bitmap(ms);
-        //    }
-        //}
 
+        // the below is working
+        //private void button2_Click(object sender, EventArgs e)
+        //{
+        //    //capture_Form form = new capture_Form();
+        //    this.Hide();
+        //    if (captureForm == null || captureForm.IsDisposed)
+        //    {
+        //        captureForm = new capture_Form();
+        //    }
+        //    startCapture();
+        //    captureForm.Show();
+        //}
         private void button2_Click(object sender, EventArgs e)
         {
             //capture_Form form = new capture_Form();
             this.Hide();
             if (captureForm == null || captureForm.IsDisposed)
             {
-                captureForm = new capture_Form();
+                captureForm = new capture_Form(this);
             }
             startCapture();
             captureForm.Show();
         }
+
+
+
     }
 }

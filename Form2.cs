@@ -31,9 +31,6 @@ namespace DigitalPersona_app
         public void updatecap(Reader reader)
         {
 
-
-
-
             reader.Open(Constants.CapturePriority.DP_PRIORITY_EXCLUSIVE);
             if (reader != null)
             {
@@ -57,7 +54,7 @@ namespace DigitalPersona_app
             {
                 MessageBox.Show("Reader is null");
             }
-            //reader.Dispose();
+            reader.Dispose();
         }
 
         private void button1_Click(object sender, EventArgs e)
