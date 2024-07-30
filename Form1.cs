@@ -272,6 +272,7 @@ namespace DigitalPersona_app
                 rgbBytes[(i * 3)] = bytes[i];
                 rgbBytes[(i * 3) + 1] = bytes[i];
                 rgbBytes[(i * 3) + 2] = bytes[i];
+
             }
 
             Bitmap bmp = new Bitmap(width, height, PixelFormat.Format1bppIndexed);
