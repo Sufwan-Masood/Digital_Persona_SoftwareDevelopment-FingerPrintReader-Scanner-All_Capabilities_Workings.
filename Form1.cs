@@ -10,12 +10,16 @@ using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Data;
+using System.Reflection.Metadata;
 
 namespace DigitalPersona_app
 {
 
     public partial class DP_Enterance : Form
     {
+        private const int PROBABILITY_ONE = 0x7fffffff;
+
         private capture_Form captureForm;
         private Capabilites_form capabilitesForm;
         private List<Fmd> fmdList;
@@ -194,38 +198,64 @@ namespace DigitalPersona_app
 
 
 
-        private void StoreFmdInDatabase(byte[] fmdBytes)
+        private void StoreFmdInDatabase(byte[] fmdBytes,string Xml)
         {
+            bool is_enrolled=false;
             string cs = "Data Source=DESKTOP-1907SQ5;Initial Catalog=DigitalPersona;Integrated Security=True";
             SqlConnection con = new SqlConnection(cs);
-            string query = "INSERT INTO FingerprintData (Fmd) VALUES (@Fmd)";
-            string query2 = "Select Id from FingerprintData where Fmd = @Fmd";
+            string query = "INSERT INTO FingerprintData (Fmd,Decoded_XML) VALUES (@Fmd , @Xml)";
+            string query2 = "Select Decoded_XML from FingerprintData";
             SqlCommand cmd = new SqlCommand(query, con);
             SqlCommand cmd2 = new SqlCommand(query2, con);
             cmd.Parameters.AddWithValue("@Fmd", fmdBytes);
-            cmd2.Parameters.AddWithValue("@Fmd", fmdBytes);
+            cmd.Parameters.AddWithValue("@Xml", Xml);
+            //cmd2.Parameters.AddWithValue("@Fmd", fmdBytes);
+            //cmd2.Parameters.AddWithValue("@Xml", Xml);
             con.Open();
-            SqlDataReader dr = cmd2.ExecuteReader();
-            if (dr.HasRows)
-            {
-                Console.WriteLine("\t\t\tFinger Already Enrolled");
-            }
-            else
-            {
-                Console.WriteLine("\t\t\tUnique");
 
+            // Retrieve all FMDs from the database
+            SqlDataReader dr = cmd2.ExecuteReader();  
+            List<Fmd>existingFmds = new List<Fmd>(); 
+            
+            while (dr.Read())
+            {
+                string xmlData = dr["Decoded_XML"].ToString();
+                existingFmds.Add(Fmd.DeserializeXml(xmlData));
             }
+            dr.Close();
+            int checkNo = 0;
+            foreach (var existingFmd in existingFmds)
+            {
+                CompareResult compareResult = Comparison.Compare(existingFmd, 0, Fmd.DeserializeXml(Xml), 0);
+                Console.WriteLine($"Checking {++checkNo}th FMD in DB || Dissimilarity Score => {compareResult.Score} ");
+                if(compareResult.Score <= PROBABILITY_ONE/ 100000)
+                {
+                    is_enrolled = true;
+                }
+            }
+            checkNo = 0;
             con.Close();
 
             con.Open();
-            int nq = cmd.ExecuteNonQuery();
-            if (nq > 0)
-            {
-                Console.WriteLine("Data Entered in SqlServer Base");
-                Console.WriteLine($"Rows Affected: {nq}");
-                Console.WriteLine($"Data: {fmdBytes.LongLength}");
-                Console.WriteLine("-----------------------------------------------------------------");
+            if (!is_enrolled) {
+                int nq = cmd.ExecuteNonQuery();
+                if (nq > 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Data Entered in SqlServer Base");
+                    Console.WriteLine($"Rows Affected: {nq}");
+                    Console.WriteLine($"Data: {fmdBytes.LongLength}");
+                    Console.WriteLine("-----------------------------------------------------------------");
+                    Console.ResetColor();
+                }
             }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Already Enrolled in Data Base");
+                Console.ResetColor();
+            }
+            
             con.Close();
         }
 
@@ -302,22 +332,26 @@ namespace DigitalPersona_app
 
             preEnrollment.Add(resultConversion.Data);
             count++;
-            //if (count >= 2)
+            //if (count >= 2) // Create enrollment does not need it, as I will not create an Enrollment Till the Data Minutae is Enough
             {
                 DataResult<Fmd> resultEnrollment = Enrollment.CreateEnrollmentFmd(Constants.Formats.Fmd.ANSI, preEnrollment);
    
-                if (resultEnrollment.ResultCode== Constants.ResultCode.DP_SUCCESS)
+                if (resultEnrollment.ResultCode == Constants.ResultCode.DP_SUCCESS)
                 {
-                    Console.WriteLine($"Successfully Created an Enrollment");
-                    Console.WriteLine($"**result Enrollment Views {resultEnrollment.Data.Views}");
-                    Console.WriteLine($"**result Enrollment Views count {resultEnrollment.Data.ViewCount}");
+                    string Xml = Fmd.SerializeXml(resultEnrollment.Data);
+                    Console.WriteLine(Xml);
+                    Fmd check = Fmd.DeserializeXml(Xml);
+                    Console.WriteLine($"{check.Width} = {resultEnrollment.Data.Width}");
+                    StoreFmdInDatabase(resultEnrollment.Data.Bytes, Xml);
+
                     preEnrollment.Clear();
-                    count= 0;
+                    count= 0;                
                 }
                 else if (resultEnrollment.ResultCode == Constants.ResultCode.DP_ENROLLMENT_INVALID_SET)
                 {
                     Console.WriteLine($"-Error in Enrollment");
-                    count= 0;
+                    preEnrollment.Clear();
+                    count = 0;
                 }
             }   
         }
