@@ -20,6 +20,10 @@ namespace DigitalPersona_app
         private Capabilites_form capabilitesForm;
         private List<Fmd> fmdList;
         private const int sampleCount = 1;
+
+        private List<Fmd> preEnrollment;
+        int count;
+
         public delegate void updateCapabilites(Reader reader);
         public delegate void DisplayCapture(Bitmap bitmap);
         public delegate void openEnterance();
@@ -30,6 +34,8 @@ namespace DigitalPersona_app
         {
             AllocConsole();
             fmdList = new List<Fmd>();
+            preEnrollment = new List<Fmd>();
+            count = 0;
             ReaderCollection readerCollection = ReaderCollection.GetReaders();
             try
             {
@@ -142,87 +148,51 @@ namespace DigitalPersona_app
         //        }
         //    }
         //}
-        private void OnCaptured(CaptureResult captureResult)
-        {
-
-            if (captureForm == null || captureForm.IsDisposed)
-            {
-                captureForm = new capture_Form(this);
-            }
-
-            if (captureResult.ResultCode != Constants.ResultCode.DP_SUCCESS)
-            {
-                MessageBox.Show("Error: " + captureResult.ResultCode);
-                return;
-            }
-
-            // Process the captured fingerprint
-            if (captureResult.Data != null && captureResult.Data.Views.Count > 0)
-            {
-              
-               Console.WriteLine() ;
-                foreach (Fid.Fiv view in captureResult.Data.Views)
-                {
-                   
-                    // Use the provided CreateBitmap method to create the bitmap
-                    Bitmap bitmap = CreateBitmap(view.RawImage, view.Width, view.Height);
-
-                    //// Display the bitmap in capture_Form's PictureBox
-                    //if (captureForm == null || captureForm.IsDisposed)
-                    //{
-                    //    captureForm = new capture_Form();
-                    //}
-
-                    //captureForm.UpdatePictureBox(bitmap);
-                    //captureForm.Show();
-                    //captureForm.BringToFront();
-
-                    //pictureBox1.Image = bitmap; // checking of Bitmap on the same form
-                    DisplayCapture displayCapture = captureForm._displayCapture;
-                    displayCapture(bitmap);
-
-                    // Convert the fingerprint to FMD
-                    Fmd fmd = FeatureExtraction.CreateFmdFromFid(captureResult.Data, Constants.Formats.Fmd.ANSI).Data;
-                    // Add the FMD to the list
-                    fmdList.Add(fmd);
-
-                    if (fmdList.Count == sampleCount) {
-                        StoreFmdInDatabase(fmdList[0].Bytes);
-                        fmdList.Clear();
-                    }
-                    
-                }
-            }
-            //reader.Dispose();
-        }
-
-        //private void StoreFmdInDatabase(byte[] fmdBytes)
+        //private void OnCaptured(CaptureResult captureResult)
         //{
-        //    string cs = "Data Source=DESKTOP-1907SQ5;Initial Catalog=DigitalPersona;Integrated Security=True";
-        //    SqlConnection con = new SqlConnection(cs);
-        //    string query = "INSERT INTO FingerprintData (Fmd) VALUES (@Fmd)";
-        //    string query2 = "Select Id from FingerprintData where Fmd = @Fmd";
-        //    SqlCommand cmd = new SqlCommand(query, con);
-        //    SqlCommand cmd2 = new SqlCommand(query2, con);
-        //    cmd.Parameters.AddWithValue("@Fmd", fmdBytes);
-        //    cmd2.Parameters.AddWithValue("@Fmd", fmdBytes);
-        //    con.Open();
-        //    SqlDataReader dr = cmd2.ExecuteReader();
-        //    int nq = cmd.ExecuteNonQuery();
-        //    if (nq > 0)
-        //    {
-        //        Console.WriteLine("Data Entered in SqlServer Base");
-        //        Console.WriteLine($"Rows Affected: {nq}");
-        //        Console.WriteLine($"Data: {fmdBytes.LongLength}");
-        //        Console.WriteLine("-----------------------------------------------------------------");
-        //    }
-        //    if (dr.HasRows)
-        //    {
-        //        Console.WriteLine("\t\t\tFinger Already Enrolled");
-        //    }
-        //    con.Close();
 
+        //    if (captureForm == null || captureForm.IsDisposed)
+        //    {
+        //        captureForm = new capture_Form(this);
+        //    }
+
+        //    if (captureResult.ResultCode != Constants.ResultCode.DP_SUCCESS)
+        //    {
+        //        MessageBox.Show("Error: " + captureResult.ResultCode);
+        //        return;
+        //    }
+
+        //    // Process the captured fingerprint
+        //    if (captureResult.Data != null && captureResult.Data.Views.Count > 0)
+        //    {
+              
+        //       Console.WriteLine() ;
+        //        foreach (Fid.Fiv view in captureResult.Data.Views)
+        //        {
+                   
+        //            // Use the provided CreateBitmap method to create the bitmap
+        //            Bitmap bitmap = CreateBitmap(view.RawImage, view.Width, view.Height);
+
+        //            //pictureBox1.Image = bitmap; // checking of Bitmap on the same form
+        //            DisplayCapture displayCapture = captureForm._displayCapture;
+        //            displayCapture(bitmap);
+
+        //            // Convert the fingerprint to FMD
+        //            Fmd fmd = FeatureExtraction.CreateFmdFromFid(captureResult.Data, Constants.Formats.Fmd.ANSI).Data;
+        //            // Add the FMD to the list
+        //            fmdList.Add(fmd);
+
+        //            if (fmdList.Count == sampleCount) {
+        //                StoreFmdInDatabase(fmdList[0].Bytes);
+        //                fmdList.Clear();
+        //            }
+                    
+        //        }
+        //    }
+        //    //reader.Dispose();   // if on then only one capture will be taken
         //}
+
+
 
         private void StoreFmdInDatabase(byte[] fmdBytes)
         {
@@ -289,18 +259,7 @@ namespace DigitalPersona_app
             return bmp;
         }
 
-        // the below is working
-        //private void button2_Click(object sender, EventArgs e)
-        //{
-        //    //capture_Form form = new capture_Form();
-        //    this.Hide();
-        //    if (captureForm == null || captureForm.IsDisposed)
-        //    {
-        //        captureForm = new capture_Form();
-        //    }
-        //    startCapture();
-        //    captureForm.Show();
-        //}
+
         private void button2_Click(object sender, EventArgs e)
         {
             //capture_Form form = new capture_Form();
@@ -311,6 +270,56 @@ namespace DigitalPersona_app
             }
             startCapture();
             captureForm.Show();
+        }
+        private void OnCaptured(CaptureResult captureResult)
+        {
+            DisplayCapture displayCapture = captureForm._displayCapture; // delegate subscription
+            DataResult<Fmd> resultConversion = FeatureExtraction.CreateFmdFromFid(captureResult.Data, Constants.Formats.Fmd.ANSI);
+           
+            foreach(Fid.Fiv view in captureResult.Data.Views)
+            {
+                Bitmap bitmap = CreateBitmap(view.RawImage,view.Width,view.Height);
+                displayCapture(bitmap);
+            }
+            //Console.WriteLine($"        --{resultConversion.Data.ViewCount}");// means that result conversion has only one view
+            //Console.WriteLine($"       - --{resultConversion.Data.Views.Count}");
+            if (resultConversion.ResultCode != Constants.ResultCode.DP_SUCCESS)
+            {
+                MessageBox.Show(resultConversion.ResultCode.ToString());
+                return;
+            }
+
+            if (captureForm == null || captureForm.IsDisposed)
+            {
+                captureForm = new capture_Form(this);
+            }
+
+            if (captureResult.ResultCode != Constants.ResultCode.DP_SUCCESS)
+            {
+                MessageBox.Show("-Error: " + captureResult.ResultCode);
+                return;
+            }
+
+            preEnrollment.Add(resultConversion.Data);
+            count++;
+            //if (count >= 2)
+            {
+                DataResult<Fmd> resultEnrollment = Enrollment.CreateEnrollmentFmd(Constants.Formats.Fmd.ANSI, preEnrollment);
+   
+                if (resultEnrollment.ResultCode== Constants.ResultCode.DP_SUCCESS)
+                {
+                    Console.WriteLine($"Successfully Created an Enrollment");
+                    Console.WriteLine($"**result Enrollment Views {resultEnrollment.Data.Views}");
+                    Console.WriteLine($"**result Enrollment Views count {resultEnrollment.Data.ViewCount}");
+                    preEnrollment.Clear();
+                    count= 0;
+                }
+                else if (resultEnrollment.ResultCode == Constants.ResultCode.DP_ENROLLMENT_INVALID_SET)
+                {
+                    Console.WriteLine($"-Error in Enrollment");
+                    count= 0;
+                }
+            }   
         }
     }
 }

@@ -42,6 +42,20 @@ namespace DigitalPersona_app
                 MessageBox.Show("Empty Bitmap");
             }
         }
+        public void _displayCapture2(Bitmap bitmap)
+        {
+            if (bitmap != null)
+            {
+                pictureBox2.Image = bitmap;
+                pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
+                Console.WriteLine(bitmap.GetPixel(100, 100));
+
+            }
+            else
+            {
+                MessageBox.Show("Empty Bitmap");
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {

@@ -31,12 +31,14 @@
             pictureBox1 = new PictureBox();
             button1 = new Button();
             label1 = new Label();
+            pictureBox2 = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
             // 
-            pictureBox1.Location = new Point(12, 12);
+            pictureBox1.Location = new Point(12, 29);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(389, 409);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
@@ -64,12 +66,22 @@
             label1.TabIndex = 2;
             label1.Text = "Place Your Finger On Reader";
             // 
+            // pictureBox2
+            // 
+            pictureBox2.Location = new Point(497, 24);
+            pictureBox2.Name = "pictureBox2";
+            pictureBox2.Size = new Size(170, 151);
+            pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox2.TabIndex = 3;
+            pictureBox2.TabStop = false;
+            // 
             // capture_Form
             // 
             AutoScaleDimensions = new SizeF(11F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.GradientActiveCaption;
             ClientSize = new Size(800, 450);
+            Controls.Add(pictureBox2);
             Controls.Add(label1);
             Controls.Add(button1);
             Controls.Add(pictureBox1);
@@ -78,6 +90,7 @@
             Text = "Capture";
             Load += Capture_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -86,5 +99,6 @@
         private Button button1;
         public PictureBox pictureBox1;
         public Label label1;
+        public PictureBox pictureBox2;
     }
 }
