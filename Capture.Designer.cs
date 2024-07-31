@@ -28,20 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(capture_Form));
             pictureBox1 = new PictureBox();
             button1 = new Button();
             label1 = new Label();
-            pictureBox2 = new PictureBox();
+            label2 = new Label();
+            timer1 = new System.Windows.Forms.Timer(components);
+            timer2 = new System.Windows.Forms.Timer(components);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
             // 
+            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
             pictureBox1.Location = new Point(12, 29);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(389, 409);
-            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
@@ -65,15 +69,27 @@
             label1.Size = new Size(330, 31);
             label1.TabIndex = 2;
             label1.Text = "Place Your Finger On Reader";
+            label1.Click += label1_Click;
             // 
-            // pictureBox2
+            // label2
             // 
-            pictureBox2.Location = new Point(497, 24);
-            pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(170, 151);
-            pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBox2.TabIndex = 3;
-            pictureBox2.TabStop = false;
+            label2.AutoSize = true;
+            label2.Font = new Font("MS UI Gothic", 16F, FontStyle.Bold, GraphicsUnit.Point);
+            label2.ForeColor = Color.OrangeRed;
+            label2.Location = new Point(425, 94);
+            label2.Name = "label2";
+            label2.Size = new Size(98, 33);
+            label2.TabIndex = 3;
+            label2.Text = "label2";
+            // 
+            // timer1
+            // 
+            timer1.Tick += timer1_Tick;
+            // 
+            // timer2
+            // 
+            timer2.Interval = 2000;
+            timer2.Tick += timer2_Tick;
             // 
             // capture_Form
             // 
@@ -81,7 +97,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.GradientActiveCaption;
             ClientSize = new Size(800, 450);
-            Controls.Add(pictureBox2);
+            Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(button1);
             Controls.Add(pictureBox1);
@@ -90,7 +106,6 @@
             Text = "Capture";
             Load += Capture_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -99,6 +114,8 @@
         private Button button1;
         public PictureBox pictureBox1;
         public Label label1;
-        public PictureBox pictureBox2;
+        private Label label2;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer timer2;
     }
 }

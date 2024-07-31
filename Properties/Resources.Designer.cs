@@ -59,5 +59,15 @@ namespace DigitalPersona_app.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _20d9b393213583_5e5f066a411d0 {
+            get {
+                object obj = ResourceManager.GetObject("20d9b393213583.5e5f066a411d0", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

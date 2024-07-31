@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Data;
 using System.Reflection.Metadata;
+using System.CodeDom;
 
 namespace DigitalPersona_app
 {
@@ -19,7 +20,6 @@ namespace DigitalPersona_app
     public partial class DP_Enterance : Form
     {
         private const int PROBABILITY_ONE = 0x7fffffff;
-
         private capture_Form captureForm;
         private Capabilites_form capabilitesForm;
         private List<Fmd> fmdList;
@@ -27,10 +27,12 @@ namespace DigitalPersona_app
 
         private List<Fmd> preEnrollment;
         int count;
+        public string found = null;
 
         public delegate void updateCapabilites(Reader reader);
         public delegate void DisplayCapture(Bitmap bitmap);
-        public delegate void openEnterance();
+        public delegate void _foundDelegate(string message);
+        
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
 
         public Reader reader;
@@ -227,17 +229,22 @@ namespace DigitalPersona_app
             foreach (var existingFmd in existingFmds)
             {
                 CompareResult compareResult = Comparison.Compare(existingFmd, 0, Fmd.DeserializeXml(Xml), 0);
-                Console.WriteLine($"Checking {++checkNo}th FMD in DB || Dissimilarity Score => {compareResult.Score} ");
+                Console.WriteLine($"Checking {++checkNo} FMD in DB || Dissimilarity Score => {compareResult.Score} ");
                 if(compareResult.Score <= PROBABILITY_ONE/ 100000)
                 {
                     is_enrolled = true;
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine($"\t\t\t\t\t*MATCHED");
+                    Console.ResetColor();
                 }
+
             }
             checkNo = 0;
             con.Close();
 
             con.Open();
             if (!is_enrolled) {
+                
                 int nq = cmd.ExecuteNonQuery();
                 if (nq > 0)
                 {
@@ -247,13 +254,18 @@ namespace DigitalPersona_app
                     Console.WriteLine($"Data: {fmdBytes.LongLength}");
                     Console.WriteLine("-----------------------------------------------------------------");
                     Console.ResetColor();
+                    _foundDelegate found = captureForm._Found;
+                    found("New Finger Enrolled");
                 }
             }
             else
             {
+                
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Already Enrolled in Data Base");
                 Console.ResetColor();
+                _foundDelegate found = captureForm._Found;
+                found("Finger Already Enrolled");
             }
             
             con.Close();
@@ -261,8 +273,8 @@ namespace DigitalPersona_app
 
 
 
-        // Helper method to create a bitmap from the raw image data
-        // Provided CreateBitmap method
+        //Helper method to create a bitmap from the raw image data
+        //Provided CreateBitmap method
         public Bitmap CreateBitmap(byte[] bytes, int width, int height)
         {
             byte[] rgbBytes = new byte[bytes.Length * 3];
@@ -275,7 +287,7 @@ namespace DigitalPersona_app
 
             }
 
-            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format1bppIndexed);
+            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
 
@@ -289,6 +301,55 @@ namespace DigitalPersona_app
 
             return bmp;
         }
+        //public Bitmap CreateBitmap(byte[] bytes, int width, int height)
+        //{
+        //    Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+
+        //    // Lock the bitmap's bits.
+        //    BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
+        //                                    ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+
+        //    int bytesPerPixel = Image.GetPixelFormatSize(data.PixelFormat) / 8;
+        //    byte[] rgbBytes = new byte[data.Stride * bmp.Height];
+
+        //    for (int y = 0; y < bmp.Height; y++)
+        //    {
+        //        for (int x = 0; x < bmp.Width; x++)
+        //        {
+        //            byte grayscaleValue = bytes[y * width + x];
+
+        //            // Apply color transformation
+        //            Color color = GetColorForValue(grayscaleValue);
+
+        //            int pixelIndex = (y * data.Stride) + (x * bytesPerPixel);
+
+        //            rgbBytes[pixelIndex] = color.B;     // Blue component
+        //            rgbBytes[pixelIndex + 1] = color.G; // Green component
+        //            rgbBytes[pixelIndex + 2] = color.R; // Red component
+        //        }
+        //    }
+
+        //    Marshal.Copy(rgbBytes, 0, data.Scan0, rgbBytes.Length);
+
+        //    // Unlock the bits.
+        //    bmp.UnlockBits(data);
+
+        //    return bmp;
+        //}
+
+        //private Color GetColorForValue(byte value)
+        //{
+        //    // Map grayscale value to a minimalist gradient.
+        //    // Example: from soft blue to soft green.
+
+        //    int r = Math.Min(100 + (value / 4), 255); // Soft Red
+        //    int g = Math.Min(150 + (value / 2), 255); // Soft Green
+        //    int b = Math.Min(180 + (value / 3), 255); // Soft Blue
+
+        //    return Color.FromArgb(r, g, b);
+        //}
+
+
 
 
         private void button2_Click(object sender, EventArgs e)
