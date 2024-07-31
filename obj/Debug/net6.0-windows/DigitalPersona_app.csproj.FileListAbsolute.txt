@@ -33,3 +33,4 @@ C:\Users\GOLDEN\source\repos\DigitalPersona_app\bin\Debug\net6.0-windows\runtime
 C:\Users\GOLDEN\source\repos\DigitalPersona_app\bin\Debug\net6.0-windows\runtimes\win-x86\native\sni.dll
 C:\Users\GOLDEN\source\repos\DigitalPersona_app\bin\Debug\net6.0-windows\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\GOLDEN\source\repos\DigitalPersona_app\bin\Debug\net6.0-windows\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\GOLDEN\source\repos\DigitalPersona_app\obj\Debug\net6.0-windows\DigitalPersona_app.DBView.resources

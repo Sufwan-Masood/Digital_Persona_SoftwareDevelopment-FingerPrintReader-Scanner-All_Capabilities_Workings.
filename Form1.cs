@@ -22,6 +22,7 @@ namespace DigitalPersona_app
         private const int PROBABILITY_ONE = 0x7fffffff;
         private capture_Form captureForm;
         private Capabilites_form capabilitesForm;
+        private DBView dBViewForm;
         private List<Fmd> fmdList;
         private const int sampleCount = 1;
 
@@ -32,7 +33,7 @@ namespace DigitalPersona_app
         public delegate void updateCapabilites(Reader reader);
         public delegate void DisplayCapture(Bitmap bitmap);
         public delegate void _foundDelegate(string message);
-        
+
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
 
         public Reader reader;
@@ -95,6 +96,7 @@ namespace DigitalPersona_app
             {
                 button1.Visible = true;
                 button2.Visible = true;
+                button3.Visible = true;
                 ReaderCollection readerCollection = ReaderCollection.GetReaders();
                 reader = readerCollection[comboBox1.SelectedIndex];
             }
@@ -171,11 +173,11 @@ namespace DigitalPersona_app
         //    // Process the captured fingerprint
         //    if (captureResult.Data != null && captureResult.Data.Views.Count > 0)
         //    {
-              
+
         //       Console.WriteLine() ;
         //        foreach (Fid.Fiv view in captureResult.Data.Views)
         //        {
-                   
+
         //            // Use the provided CreateBitmap method to create the bitmap
         //            Bitmap bitmap = CreateBitmap(view.RawImage, view.Width, view.Height);
 
@@ -192,7 +194,7 @@ namespace DigitalPersona_app
         //                StoreFmdInDatabase(fmdList[0].Bytes);
         //                fmdList.Clear();
         //            }
-                    
+
         //        }
         //    }
         //    //reader.Dispose();   // if on then only one capture will be taken
@@ -200,9 +202,9 @@ namespace DigitalPersona_app
 
 
 
-        private void StoreFmdInDatabase(byte[] fmdBytes,string Xml)
+        private void StoreFmdInDatabase(byte[] fmdBytes, string Xml)
         {
-            bool is_enrolled=false;
+            bool is_enrolled = false;
             string cs = "Data Source=DESKTOP-1907SQ5;Initial Catalog=DigitalPersona;Integrated Security=True";
             SqlConnection con = new SqlConnection(cs);
             string query = "INSERT INTO FingerprintData (Fmd,Decoded_XML) VALUES (@Fmd , @Xml)";
@@ -216,9 +218,9 @@ namespace DigitalPersona_app
             con.Open();
 
             // Retrieve all FMDs from the database
-            SqlDataReader dr = cmd2.ExecuteReader();  
-            List<Fmd>existingFmds = new List<Fmd>(); 
-            
+            SqlDataReader dr = cmd2.ExecuteReader();
+            List<Fmd> existingFmds = new List<Fmd>();
+
             while (dr.Read())
             {
                 string xmlData = dr["Decoded_XML"].ToString();
@@ -230,7 +232,7 @@ namespace DigitalPersona_app
             {
                 CompareResult compareResult = Comparison.Compare(existingFmd, 0, Fmd.DeserializeXml(Xml), 0);
                 Console.WriteLine($"Checking {++checkNo} FMD in DB || Dissimilarity Score => {compareResult.Score} ");
-                if(compareResult.Score <= PROBABILITY_ONE/ 100000)
+                if (compareResult.Score <= PROBABILITY_ONE / 100000)
                 {
                     is_enrolled = true;
                     Console.ForegroundColor = ConsoleColor.Blue;
@@ -243,8 +245,9 @@ namespace DigitalPersona_app
             con.Close();
 
             con.Open();
-            if (!is_enrolled) {
-                
+            if (!is_enrolled)
+            {
+
                 int nq = cmd.ExecuteNonQuery();
                 if (nq > 0)
                 {
@@ -260,14 +263,14 @@ namespace DigitalPersona_app
             }
             else
             {
-                
+
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Already Enrolled in Data Base");
                 Console.ResetColor();
                 _foundDelegate found = captureForm._Found;
                 found("Finger Already Enrolled");
             }
-            
+
             con.Close();
         }
 
@@ -367,10 +370,10 @@ namespace DigitalPersona_app
         {
             DisplayCapture displayCapture = captureForm._displayCapture; // delegate subscription
             DataResult<Fmd> resultConversion = FeatureExtraction.CreateFmdFromFid(captureResult.Data, Constants.Formats.Fmd.ANSI);
-           
-            foreach(Fid.Fiv view in captureResult.Data.Views)
+
+            foreach (Fid.Fiv view in captureResult.Data.Views)
             {
-                Bitmap bitmap = CreateBitmap(view.RawImage,view.Width,view.Height);
+                Bitmap bitmap = CreateBitmap(view.RawImage, view.Width, view.Height);
                 displayCapture(bitmap);
             }
             //Console.WriteLine($"        --{resultConversion.Data.ViewCount}");// means that result conversion has only one view
@@ -397,7 +400,7 @@ namespace DigitalPersona_app
             //if (count >= 2) // Create enrollment does not need it, as I will not create an Enrollment Till the Data Minutae is Enough
             {
                 DataResult<Fmd> resultEnrollment = Enrollment.CreateEnrollmentFmd(Constants.Formats.Fmd.ANSI, preEnrollment);
-   
+
                 if (resultEnrollment.ResultCode == Constants.ResultCode.DP_SUCCESS)
                 {
                     string Xml = Fmd.SerializeXml(resultEnrollment.Data);
@@ -407,7 +410,7 @@ namespace DigitalPersona_app
                     StoreFmdInDatabase(resultEnrollment.Data.Bytes, Xml);
 
                     preEnrollment.Clear();
-                    count= 0;                
+                    count = 0;
                 }
                 else if (resultEnrollment.ResultCode == Constants.ResultCode.DP_ENROLLMENT_INVALID_SET)
                 {
@@ -415,7 +418,17 @@ namespace DigitalPersona_app
                     preEnrollment.Clear();
                     count = 0;
                 }
-            }   
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            if ( dBViewForm == null|| dBViewForm.IsDisposed)
+            {
+                dBViewForm = new DBView(this);
+            }
+            dBViewForm.Show();
         }
     }
 }
