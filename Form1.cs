@@ -28,7 +28,7 @@ namespace DigitalPersona_app
 
         private List<Fmd> preEnrollment;
         int count;
-        public string found = null;
+        public string ? found = null;
 
         public delegate void updateCapabilites(Reader reader);
         public delegate void DisplayCapture(Bitmap bitmap);
@@ -368,11 +368,13 @@ namespace DigitalPersona_app
         }
         private void OnCaptured(CaptureResult captureResult)
         {
+            //isMatched(captureResult);
             DisplayCapture displayCapture = captureForm._displayCapture; // delegate subscription
             DataResult<Fmd> resultConversion = FeatureExtraction.CreateFmdFromFid(captureResult.Data, Constants.Formats.Fmd.ANSI);
+            Console.WriteLine($"{resultConversion.Data.ViewCount} ==> resultConversionCount");
 
             foreach (Fid.Fiv view in captureResult.Data.Views)
-            {
+            {   
                 Bitmap bitmap = CreateBitmap(view.RawImage, view.Width, view.Height);
                 displayCapture(bitmap);
             }
@@ -396,11 +398,14 @@ namespace DigitalPersona_app
             }
 
             preEnrollment.Add(resultConversion.Data);
+           Console.WriteLine( $"{preEnrollment.Count}==> PreEnrollCount");
             count++;
-            //if (count >= 2) // Create enrollment does not need it, as I will not create an Enrollment Till the Data Minutae is Enough
-            {
-                DataResult<Fmd> resultEnrollment = Enrollment.CreateEnrollmentFmd(Constants.Formats.Fmd.ANSI, preEnrollment);
 
+
+            //if (count >= 2) // Create enrollment does not need it, as I will not create an Enrollment Till the Data Minutae is Enough
+            {   
+                DataResult<Fmd> resultEnrollment = Enrollment.CreateEnrollmentFmd(Constants.Formats.Fmd.ANSI, preEnrollment);
+                Console.WriteLine($"{resultEnrollment.ResultCode}  ==> ResultEnrollment Code");
                 if (resultEnrollment.ResultCode == Constants.ResultCode.DP_SUCCESS)
                 {
                     string Xml = Fmd.SerializeXml(resultEnrollment.Data);
@@ -430,5 +435,29 @@ namespace DigitalPersona_app
             }
             dBViewForm.Show();
         }
+        //private void isMatched(CaptureResult captureResult)
+        //{
+        //    DataResult<Fmd> dataResult = FeatureExtraction.CreateFmdFromFid(captureResult.Data, Constants.Formats.Fmd.ANSI);
+        //    string cs = "Data Source=DESKTOP-1907SQ5;Initial Catalog=DigitalPersona;Integrated Security=True";
+        //    SqlConnection con = new SqlConnection(cs);
+        //    string Query = "Select Decoded_XML from FingerprintData";
+        //    SqlCommand cmd = new SqlCommand(Query, con);
+        //    con.Open();
+        //    SqlDataReader dr =cmd.ExecuteReader();
+        //    while (dr.Read())
+        //    {
+        //        string Xml = dr["Decoded_XML"].ToString();
+        //        CompareResult compareResult = Comparison.Compare(dataResult.Data, 0, Fmd.DeserializeXml(Xml), 0);
+        //        if (compareResult.Score > PROBABILITY_ONE / 100000)
+        //        {
+        //            Console.WriteLine("New");
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine("Matched");
+        //        }
+        //    }
+        //    con.Close();
+        //}
     }
 }
